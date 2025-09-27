@@ -47,7 +47,7 @@ jobs:
           # Install production dependencies only
           npm install --production
           npm install -g pm2
-          # Start or restart app using pm2
+          # Start or restart app using pm2 
           pm2 restart myapp || pm2 start index.js --name myapp
           pm2 save
 
