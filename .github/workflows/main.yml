@@ -20,9 +20,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/your-repo || git clone https://github.com/<your-username>/<your-repo>.git ~/your-repo
-            cd ~/your-repo
+            cd ~/CI-CD_practice || git clone https://github.com/aniketanand-dev/CI-CD_practice.git ~/CI-CD_practice
+            cd ~/CI-CD_practice
             git pull origin main
             npm install --production
-            pm2 restart myapp || pm2 start app.js --name myapp
+            pm2 restart myapp || pm2 start index.js --name myapp
             pm2 save
