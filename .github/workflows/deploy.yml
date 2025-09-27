@@ -1,0 +1,28 @@
+name: CI/CD Deploy Node.js
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/your-repo || git clone https://github.com/<your-username>/<your-repo>.git ~/your-repo
+            cd ~/your-repo
+            git pull origin main
+            npm install --production
+            pm2 restart myapp || pm2 start app.js --name myapp
+            pm2 save
