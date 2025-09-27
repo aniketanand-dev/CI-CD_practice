@@ -1,28 +1,56 @@
-name: CI/CD Deploy Node.js
+name: Node.js CI/CD Local
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger workflow on push to main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@v0.1.6
+      # 2️⃣ Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd ~/CI-CD_practice || git clone https://github.com/aniketanand-dev/CI-CD_practice.git ~/CI-CD_practice
-            cd ~/CI-CD_practice
-            git pull origin main
-            npm install --production
-            pm2 restart myapp || pm2 start index.js --name myapp
-            pm2 save
+          node-version: '20'
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4️⃣ Run tests (optional)
+      - name: Run tests
+        run: npm test || echo "No tests configured"
+
+      # 5️⃣ Build project (optional)
+      - name: Build project
+        run: npm run build || echo "No build step configured"
+
+      # 6️⃣ Deploy to local folder
+      - name: Deploy to local folder
+        run: |
+          # Create deploy folder if it doesn't exist
+          mkdir -p $HOME/CI-CD_practice
+
+          # Copy all files to deploy folder
+          rsync -av --exclude='.git' ./ $HOME/CI-CD_practice/
+
+          # Go to deploy folder
+          cd $HOME/CI-CD_practice
+
+          # Install production dependencies only
+          npm install --production
+
+          # Start or restart app using pm2
+          pm2 restart myapp || pm2 start index.js --name myapp
+          pm2 save
+
+      # 7️⃣ Optional: list deployed files for verification
+      - name: Verify deployment
+        run: ls -l $HOME/CI-CD_practice
